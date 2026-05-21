@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FMG Platform — UI Kit Specification</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f4f0;
+      --bg3: #eceae4;
+      --text: #1a1a18;
+      --text2: #5a5a56;
+      --text3: #8a8a84;
+      --border: rgba(0,0,0,0.1);
+      --border2: rgba(0,0,0,0.18);
+      --accent: #1a6b4a;
+      --accent-bg: #e8f5ef;
+      --accent-text: #0f4a33;
+      --info-bg: #e6f0fb;
+      --info-text: #174a8c;
+      --warn-bg: #fef3e2;
+      --warn-text: #7a4b00;
+      --danger-bg: #fdeaea;
+      --danger-text: #8b1c1c;
+      --success-bg: #eaf5e8;
+      --success-text: #1a5c16;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #252523;
+        --bg3: #2e2e2b;
+        --text: #e8e6de;
+        --text2: #a8a6a0;
+        --text3: #6a6a64;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.18);
+        --accent: #4caf82;
+        --accent-bg: #0f3324;
+        --accent-text: #7dd9aa;
+        --info-bg: #0f2040;
+        --info-text: #7ab4f0;
+        --warn-bg: #2e1f00;
+        --warn-text: #f0b84a;
+        --danger-bg: #2e0f0f;
+        --danger-text: #f08080;
+        --success-bg: #0f2e0f;
+        --success-text: #80c880;
+        --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+    }
+
+    html { font-size: 15px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* HEADER */
+    .site-header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand-dot {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .header-meta {
+      font-size: 0.78rem;
+      color: var(--text3);
+    }
+
+    /* LAYOUT */
+    .app-body {
+      display: flex;
+      flex: 1;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .sidebar-section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text3);
+      padding: 0 1.25rem 0.5rem;
+      margin-top: 1rem;
+    }
+    .sidebar-section-label:first-child { margin-top: 0; }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text2);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      border-radius: 0;
+      transition: background 0.12s;
+    }
+    .sidebar-link:hover { background: var(--bg2); color: var(--text); }
+    .sidebar-link.active {
+      color: var(--accent);
+      background: var(--accent-bg);
+      font-weight: 500;
+    }
+    .sidebar-link .badge {
+      margin-left: auto;
+      font-size: 0.68rem;
+      background: var(--bg3);
+      color: var(--text3);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      min-width: 0;
+      max-width: 1100px;
+    }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 1.75rem; }
+    .page-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .page-header p {
+      font-size: 0.875rem;
+      color: var(--text2);
+      max-width: 640px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 1rem 1.25rem 0.875rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-header h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .card-body { padding: 1.25rem; }
+
+    /* JOURNEY GRID */
+    .journey-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .journey-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .journey-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .journey-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .journey-num {
+      font-size: 0.7rem;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .page-list { list-style: none; }
+    .page-item {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .page-item:last-child { border-bottom: none; }
+    .page-item-name { font-weight: 500; color: var(--text); }
+    .page-item-note {
+      color: var(--text3);
+      font-size: 0.78rem;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* LABEL CHIPS */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .chip-client { background: var(--info-bg); color: var(--info-text); }
+    .chip-staff  { background: var(--success-bg); color: var(--success-text); }
+    .chip-shared { background: var(--warn-bg); color: var(--warn-text); }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .filter-btn {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text2);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .filter-btn:hover { background: var(--bg2); color: var(--text); }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .filter-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* COMPONENT TABLE */
+    .comp-table-wrap { overflow-x: auto; }
+    table.comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    table.comp-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text3);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border2);
+      position: sticky;
+      top: 0;
+    }
+    table.comp-table td {
+      padding: 10px 14px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+    }
+    table.comp-table tr:last-child td { border-bottom: none; }
+    table.comp-table tr:hover td { background: var(--bg2); }
+    .comp-name { font-weight: 600; font-size: 0.85rem; }
+    .cat-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 1px 7px;
+      border-radius: 4px;
+      background: var(--bg3);
+      color: var(--text3);
+      border: 1px solid var(--border);
+      margin-top: 4px;
+      text-transform: capitalize;
+    }
+    .wcag-block {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border2);
+      font-size: 0.78rem;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .wcag-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--warn-text);
+      margin-right: 4px;
+    }
+
+    /* USAGE MAP */
+    .usage-select-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .usage-select-row label { font-size: 0.85rem; color: var(--text2); flex-shrink: 0; }
+    .usage-select-row select {
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+      min-width: 240px;
+      cursor: pointer;
+    }
+    .usage-select-row select:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .usage-list { display: flex; flex-direction: column; gap: 8px; }
+    .usage-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .usage-journey-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    /* SEARCH */
+    .search-wrap { position: relative; margin-bottom: 1rem; }
+    .search-wrap input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+    .search-wrap input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .search-icon {
+      position: absolute;
+      left: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text3);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    /* STAT CARDS */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .stat-card .num {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .stat-card .lbl { font-size: 0.78rem; color: var(--text3); }
+
+    /* EMPTY */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text3);
+      font-size: 0.875rem;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { padding: 1rem; }
+      .journey-grid { grid-template-columns: 1fr; }
+    }
+
+    /* PASSWORD GATE */
+    .gate-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg3);
+      padding: 1.5rem;
+    }
+    .gate-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .gate-logo {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.25rem;
+    }
+    .gate-card h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+    .gate-card p {
+      font-size: 0.82rem;
+      color: var(--text3);
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+    .gate-field {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+    .gate-field input {
+      width: 100%;
+      padding: 10px 44px 10px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .gate-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg);
+    }
+    .gate-field input.error {
+      border-color: var(--danger-text);
+      box-shadow: 0 0 0 3px var(--danger-bg);
+    }
+    .gate-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+      line-height: 1;
+    }
+    .gate-toggle:hover { color: var(--text); }
+    .gate-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    .gate-error {
+      font-size: 0.78rem;
+      color: var(--danger-text);
+      margin-bottom: 0.75rem;
+      min-height: 1.2em;
+    }
+    .gate-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: var(--radius);
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .gate-btn:hover { opacity: 0.88; }
+    .gate-btn:active { transform: scale(0.98); }
+    .gate-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .gate-meta {
+      margin-top: 1.25rem;
+      font-size: 0.75rem;
+      color: var(--text3);
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useMemo, useCallback } = React;
+
+/* ─── DATA ──────────────────────────────────────────────────────── */
+
+const JOURNEYS = [
+  {
+    id: "j1", num: "J1", type: "client", label: "Onboarding & Account Setup",
+    pages: [
+      { name: "Sign-up / registration", note: "Email + password, Google/Microsoft SSO buttons. Business-type filter gate — non-food businesses shown warning." },
+      { name: "Email verification (interstitial)", note: "Confirmation sent screen — no action needed, instructs user to check inbox." },
+      { name: "Organisation profile setup", note: "Org name, address, logo upload, country, business type selector." },
+      { name: "Sites setup", note: "Add / edit / delete multiple sites; per-site details. Multi-site clients add many here." },
+      { name: "Billing & payment", note: "Rate-card display, direct debit via GoCardless, T&Cs acceptance. Billing at org level, country-specific ratecards." },
+      { name: "Team invites", note: "Invite by email, assign role + per-site permissions. Multiple invites in one session." },
+      { name: "Assessment activation confirmation", note: "Success screen + 'email confirmation on its way' state." },
+      { name: "Sign-in (returning user)", note: "Email/password + Google/Microsoft SSO options." },
+      { name: "MFA challenge", note: "OTP entry screen shown post-password when MFA is enabled." },
+      { name: "Password reset — request", note: "Enter email, receive reset link. Step 1 of 2." },
+      { name: "Password reset — set new password", note: "Reached via email link. Step 2 of 2." },
+      { name: "Invitation acceptance", note: "Landing page for invited team members; prompts them to set a password and accept T&Cs." },
+    ]
+  },
+  {
+    id: "j2", num: "J2", type: "client", label: "Completing a Submission",
+    pages: [
+      { name: "Assessment overview dashboard", note: "Pillar cards (Sourcing / Society / Environment), overall progress %, score summary, filters (assigned-to-me / unanswered / missing evidence)." },
+      { name: "Section list (within a pillar)", note: "All questions in a section. Status indicators per question. Filter bar. Links to question detail." },
+      { name: "Question detail / answer page", note: "Question text, all input types (radio, checkbox, slider, textarea, multi-select). Evidence panel. Auto-save indicator. Previous submission answer toggle. Inline comments." },
+      { name: "Assign question modal", note: "Select colleague from org, add context note, set due date. Sends email notification with deep-link." },
+      { name: "Delegate confirmation screen", note: "'Question assigned to [name]' confirmation + email sent state." },
+      { name: "My tasks", note: "List of all questions assigned to current user across all assessments. Sortable by due date, pillar, status." },
+      { name: "Global search results", note: "Search across questions, answers, evidence filenames. Scoped to current assessment." },
+      { name: "Pre-submit checklist", note: "Summary of unanswered questions, missing evidence warnings, confirmation before submit." },
+      { name: "Submit for preliminary review (confirm)", note: "Final confirm action — submits assessment for SRA evaluator review." },
+      { name: "Submission confirmation (interstitial)", note: "Success state after submit — assessment locked for editing." },
+      { name: "Read-only assessment view", note: "Post-submission. All inputs locked. Answers still browseable. Evidence viewable." },
+    ]
+  },
+  {
+    id: "j3", num: "J3", type: "shared", label: "Evidence Library",
+    pages: [
+      { name: "Evidence library — grid view", note: "Org-level library. Folder sidebar, file grid, bulk-select toolbar, type/date filters, search." },
+      { name: "Evidence library — list view", note: "Alternative list layout for large libraries. Columns: name, type, size, date, used-in." },
+      { name: "File detail / preview pane", note: "In-browser preview (PDF, image). Metadata panel. Attach-to-question action. Rename / move / archive / delete." },
+      { name: "Upload modal", note: "Drag-and-drop zone, bulk multi-file selection, URL/web-link input tab, file-size + type validation, filename sanitisation warning." },
+      { name: "Mobile capture (responsive web)", note: "Camera-triggered upload flow, optimised for mobile viewport. Key for on-site photo evidence." },
+      { name: "Folder management modal", note: "Create / rename / delete / move-into folder." },
+      { name: "Attach evidence to question modal", note: "Launched from question page — browse org library, select one or more files, confirm attachment." },
+    ]
+  },
+  {
+    id: "j4", num: "J4", type: "staff", label: "Assessment Authoring",
+    pages: [
+      { name: "Assessment templates list", note: "All versions with status (draft / published / archived). Duplicate / publish / archive actions. Version history link." },
+      { name: "Assessment version editor", note: "Pillar/section/question tree. Drag to reorder. Add/delete/move components. Dynamic question numbering auto-updates." },
+      { name: "Question editor", note: "Question type selector, text, help text (rich text), answer options, tooltips, conditional logic builder." },
+      { name: "Scoring model configurator", note: "Per-question weights, section point caps, 5-star band thresholds (50/60/70/80/90%). Unlocks and combined scoring logic." },
+      { name: "Red lines / minimum standards", note: "Configure disqualifying answers (e.g. selling endangered fish) that block a star regardless of total score." },
+      { name: "Conditional logic builder", note: "AND/OR/EITHER rule editor without requiring duplicate questions. Visual condition tree." },
+      { name: "Translations manager", note: "Per-question, per-field translation status grid. EN/JP/ES/ZH. Inline edit + bulk import from Excel." },
+      { name: "Bulk import — upload & validate", note: "Upload Excel, preview parsed questions, column mapping, validation errors per row." },
+      { name: "Bulk import — result", note: "Import ready / success / partial failure summary with row-level error details." },
+      { name: "Ratecards", note: "Create / edit billing bands per country. Fixed bug: add/delete row buttons must always be visible (old platform hid them outside scroll container)." },
+      { name: "Publish confirmation", note: "Set version as default for new submissions. Warning if existing in-progress submissions will be affected." },
+      { name: "Version history", note: "Chronological list of all versions. View / duplicate from here. Diff between versions." },
+    ]
+  },
+  {
+    id: "j5", num: "J5", type: "staff", label: "Submission Evaluation",
+    pages: [
+      { name: "Evaluator dashboard ('assigned to me')", note: "Submission list with org name, stage, deadline, evaluator score progress, secondary review flag." },
+      { name: "Submission review — question view", note: "Client answer + evidence side-by-side. Score input (auto-calculated + manual override). Improvement statement assignment. Internal evaluator notes." },
+      { name: "Score override modal", note: "Reason field required for full audit trail. Override flagged visually on question." },
+      { name: "Improvement statement bank", note: "Browse / search / filter reusable statements. Multi-language (EN/JP/ES/ZH). Create / edit / archive." },
+      { name: "Add / edit improvement statement", note: "Rich text, category tagging, all language translation fields in one view." },
+      { name: "Changes since preliminary (diff view)", note: "Side-by-side old vs new answers for questions changed between preliminary and final submission." },
+      { name: "Secondary review overview", note: "All improvement statements across submission listed for peer evaluator sign-off." },
+      { name: "Generate preliminary report (confirm)", note: "Trigger action — notifies client. Cannot be undone easily. Confirmation required." },
+      { name: "Generate final report & certify (confirm)", note: "Confirm star rating, trigger branded PDF generation, award certification, notify client." },
+      { name: "Flag as paused / offline", note: "Status change with free-text note explaining situation (e.g. client requested pause)." },
+    ]
+  },
+  {
+    id: "j6", num: "J6", type: "client", label: "Feedback & Actions",
+    pages: [
+      { name: "Preliminary report view", note: "Score summary with pillar breakdowns (%, star rating). Improvement statements per question. Download PDF/XLS. Triggered by J5." },
+      { name: "Create action modal", note: "Title, type (policy / behaviour), team (kitchen / operations / procurement / etc.), owner (from org), deadline, linked improvement statement." },
+      { name: "Actions board / tracker", note: "Kanban: To-do / In progress / Done columns. Or list view. Filter by team, type, owner, deadline." },
+      { name: "Action detail page", note: "Edit action, update status, add comments, view linked improvement statement." },
+      { name: "Final report view", note: "Certification confirmed. Star rating displayed prominently. Downloadable assets: PDF report, badge, certificate." },
+    ]
+  },
+  {
+    id: "j7", num: "J7", type: "shared", label: "Dashboard, Reporting & Export",
+    pages: [
+      { name: "Client dashboard", note: "Cert status, key dates (last submitted, next due, cert expiry), registered users count, sites overview, progress rings per pillar." },
+      { name: "SRA staff admin dashboard", note: "Global overview: organisation count, avg submission speed, completion rate, stage breakdown. Replaces Salesforce as source of truth." },
+      { name: "Organisation list (SRA)", note: "Search + filter by stage/status. Columns: org, sites, stage, evaluator, last activity, cert expiry. Bulk export trigger." },
+      { name: "Organisation detail (SRA)", note: "Full org profile: submissions history, user list, sites, billing status, Salesforce link status." },
+      { name: "Comparative analytics", note: "Progress-over-time per client or across aggregate. Chart: score trends across submission cycles." },
+      { name: "Export / data download", note: "Select orgs + date range + fields. Generate PDF / XLS / CSV. Track whether client has opened their report (read-receipt flag)." },
+    ]
+  },
+  {
+    id: "shared", num: "—", type: "shared", label: "Shared / Global Pages",
+    pages: [
+      { name: "Settings — personal profile", note: "Name, photo upload, email, password change, notification preferences (per event type)." },
+      { name: "Settings — organisation", note: "Org name, logo, address, sites list. Accessible to Client Admin and SRA Admin only." },
+      { name: "Users & permissions", note: "User list with roles, per-site permission matrix. Invite management: add, revoke, delete pending invite. Fixed: delete invite bug." },
+      { name: "Notifications centre", note: "Full notification log, read/unread status, deep-links to triggering action or question. Mark all as read." },
+      { name: "Language switcher", note: "EN / JP / ES / ZH. Persistent user preference. Available from sidebar at all times." },
+      { name: "404 / not found", note: "Generic error state with navigation back to dashboard." },
+      { name: "Session expired / access denied", note: "Distinguish between expired session (re-login) and role-based access denied (contact admin)." },
+    ]
+  },
+];
+
+const COMPONENTS = [
+  /* INPUTS */
+  { id:"btn-primary", name:"Button — Primary", cat:"inputs",
+    states:"Default · Hover · Focus-visible · Active/pressed · Loading (spinner) · Disabled",
+    wcag:"Min 44×44px touch target (SC 2.5.8). Focus ring 3:1 contrast against bg. Loading: aria-busy='true' + sr-only spinner label. Disabled: aria-disabled or genuinely unfocusable." },
+  { id:"btn-secondary", name:"Button — Secondary / Ghost", cat:"inputs",
+    states:"Default · Hover · Focus-visible · Active · Disabled · Ghost (no border) variant",
+    wcag:"Same 44px target rule. Ghost variant border/text must be 3:1 against background (SC 1.4.11 non-text contrast)." },
+  { id:"btn-destructive", name:"Button — Destructive", cat:"inputs",
+    states:"Default · Hover · Focus-visible · Active · Disabled",
+    wcag:"Colour alone must not convey 'destructive' — pair red tint with trash icon (ti-trash) + visible text label (SC 1.4.1). Always confirm before action." },
+  { id:"btn-icon", name:"Button — Icon Only", cat:"inputs",
+    states:"Default · Hover · Focus-visible · Active · Disabled · With tooltip (hover + focus)",
+    wcag:"Must have aria-label describing the action (SC 4.1.2). Tooltip visible on focus too, not only hover (SC 1.4.13). Tooltip must not obscure interactive content." },
+  { id:"text-input", name:"Text Input", cat:"inputs",
+    states:"Default · Focus · Filled · Error · Success · Disabled · Read-only · With leading icon · With character count",
+    wcag:"Visible label required — not placeholder-only (SC 1.3.5, 3.3.2). Error state: colour + icon + text message (SC 1.4.1, 3.3.1). Set autocomplete attributes where applicable (SC 1.3.5). Focus ring 3:1." },
+  { id:"textarea", name:"Textarea", cat:"inputs",
+    states:"Default · Focus · Filled · Error · Disabled · With character count · Auto-resize variant",
+    wcag:"Visible label required. Hint text via aria-describedby. Error uses role='alert' or aria-live='assertive' region." },
+  { id:"radio-group", name:"Radio Group", cat:"inputs",
+    states:"Unselected · Selected · Focus (per item) · Error (group) · Disabled (per item)",
+    wcag:"Fieldset + legend wraps the group (SC 1.3.1). Arrow keys navigate within the group (not Tab). Error message linked to the group via aria-describedby on fieldset." },
+  { id:"checkbox", name:"Checkbox", cat:"inputs",
+    states:"Unchecked · Checked · Indeterminate ('select all') · Focus · Error · Disabled",
+    wcag:"Indeterminate state via aria-checked='mixed'. Minimum 24×24px target (SC 2.5.8). Visible focus ring. Label wraps or is associated via for/id." },
+  { id:"toggle", name:"Toggle / Switch", cat:"inputs",
+    states:"Off · On · Focus · Disabled · Loading (async toggle)",
+    wcag:"role='switch' + aria-checked. Label must describe what is being toggled (e.g. 'Email notifications') — not just 'Toggle'. State change announced to screen reader." },
+  { id:"select", name:"Select / Dropdown (native)", cat:"inputs",
+    states:"Default · Open · Selected · Error · Disabled",
+    wcag:"Native <select> preferred for keyboard compatibility. Custom dropdowns need role='combobox', aria-expanded, arrow-key navigation, Escape to close (SC 4.1.2)." },
+  { id:"combobox", name:"Combobox (Searchable Select)", cat:"inputs",
+    states:"Closed · Open with search · Item focused · Item selected · Multi-selected (tags) · Empty state · Loading · Error",
+    wcag:"role='combobox', aria-expanded, aria-autocomplete='list', aria-activedescendant pointing to focused option. Escape closes list. Enter/Space selects." },
+  { id:"datepicker", name:"Date Picker", cat:"inputs",
+    states:"Closed · Open (calendar grid) · Day hover · Day selected · Range selected · Disabled dates · Today highlighted · Error",
+    wcag:"Calendar: role='grid', each day is a gridcell. Arrow keys navigate days. Page Up/Down for month. Home/End for first/last day of week. Direct text input as keyboard fallback. Selected date announced." },
+  { id:"file-upload", name:"File Upload Zone (Drag-and-drop)", cat:"inputs",
+    states:"Idle · Drag-over (highlighted) · Uploading (progress per file) · Complete (file listed) · Error — type invalid · Error — size exceeded · Multi-file queued",
+    wcag:"Must include a hidden <input type='file'> for keyboard access (SC 2.1.1). Drag-over announced via aria-live. Upload progress via aria-valuenow on progress bar. Errors via role='alert'." },
+  { id:"slider", name:"Slider (Range)", cat:"inputs",
+    states:"Default · Focus · Active drag · At minimum · At maximum · With value tooltip",
+    wcag:"role='slider', aria-valuemin, aria-valuemax, aria-valuenow, aria-valuetext (human-readable label like '7 out of 10'). Arrow keys ±1; Page Up/Down ±larger step (SC 2.1.1)." },
+  { id:"rich-text", name:"Rich Text Editor", cat:"inputs",
+    states:"Default · Focused · With content · Error state",
+    wcag:"Toolbar buttons: role='button' + aria-label per action. Editor area: role='textbox' + aria-multiline='true'. Tab key must escape the editor, not insert tab character. Formatting changes announced via aria-live." },
+  { id:"search", name:"Search Input", cat:"inputs",
+    states:"Empty · Focused · With query · Loading (spinner) · Results loaded · No results",
+    wcag:"Use type='search' or role='searchbox'. Clear button: aria-label='Clear search'. Result count in aria-live='polite' region: e.g. '5 results found for Sourcing'." },
+  { id:"lang-select", name:"Language Selector", cat:"inputs",
+    states:"Closed · Open (EN / JP / ES / ZH list) · Language selected",
+    wcag:"Each option labelled in its own language AND English for disambiguation (e.g. '日本語 — Japanese'). Selecting a language changes lang attribute on <html>. Announce change to screen reader (SC 3.1.2)." },
+  /* NAVIGATION */
+  { id:"sidebar-nav", name:"Primary Sidebar Navigation", cat:"navigation",
+    states:"Item default · Item hover · Item active/current · Item with notification badge · Collapsed (icon-only mode) · Mobile overlay variant",
+    wcag:"<nav> landmark with aria-label='Main navigation'. aria-current='page' on active item. Collapsed mode: icon-only buttons still have aria-label. Keyboard: Tab/Shift+Tab between items." },
+  { id:"breadcrumb", name:"Breadcrumb", cat:"navigation",
+    states:"Default (2+ levels). Last item is current page — not a link.",
+    wcag:"<nav aria-label='Breadcrumb'>. Last item: aria-current='page'. Separator characters are aria-hidden." },
+  { id:"tabs", name:"Tabs", cat:"navigation",
+    states:"Default · Active · Hover · Focus · Disabled tab · Horizontal layout · Vertical layout (optional)",
+    wcag:"role='tablist', role='tab', role='tabpanel'. aria-selected='true' on active. Arrow keys navigate tabs (left/right). Tab key moves focus into the tab panel, not the next tab. aria-controls links tab to panel." },
+  { id:"pagination", name:"Pagination", cat:"navigation",
+    states:"Default · Prev disabled (first page) · Next disabled (last page) · Current page highlighted",
+    wcag:"<nav aria-label='Pagination'>. aria-current='page' on current. Prev/Next are <button> elements when JS-driven, not <a> tags." },
+  { id:"step-progress", name:"Step Progress Indicator", cat:"navigation",
+    states:"Step: upcoming · current · completed · error",
+    wcag:"Implemented as <ol aria-label='Progress steps'>. Current: aria-current='step'. Completed steps: checkmark icon (not colour-only). Error steps: error icon + aria-label." },
+  { id:"assessment-nav", name:"Assessment Section Nav (Left Rail)", cat:"navigation",
+    states:"Section default · Active · Completed · Has errors · Locked (read-only submission)",
+    wcag:"<nav aria-label='Assessment sections'>. aria-current for active section. Status icons must have aria-label (e.g. aria-label='Section complete')." },
+  /* FEEDBACK */
+  { id:"toast", name:"Toast / Snackbar Notification", cat:"feedback",
+    states:"Info · Success · Warning · Error · With action link · Auto-dismiss (non-error only)",
+    wcag:"role='status' (polite) for success/info. role='alert' (assertive) for errors. Errors must NOT auto-dismiss — require explicit user dismissal. Positioned away from focused elements." },
+  { id:"inline-error", name:"Inline Form Error / Helper Text", cat:"feedback",
+    states:"Error · Warning · Success · Info/hint",
+    wcag:"Element id referenced by aria-describedby on the input. Error variant also sets aria-invalid='true' on the input (SC 3.3.1). Colour + icon + text — never colour alone." },
+  { id:"alert-banner", name:"Alert Banner (Page-level)", cat:"feedback",
+    states:"Info · Success · Warning · Error · Dismissible · Non-dismissible · Full-width",
+    wcag:"role='alert' for errors/warnings injected after page load. Placed before main content in DOM order so it is encountered first by screen readers." },
+  { id:"auto-save", name:"Auto-Save Indicator", cat:"feedback",
+    states:"Idle · Saving (spinner) · Saved ('Saved just now') · Save failed ('Retry')",
+    wcag:"aria-live='polite' region — announced without interrupting typing. 'Saving…' announced once only, not repeatedly. Error state: role='alert' + retry button." },
+  { id:"progress-bar", name:"Progress Bar", cat:"feedback",
+    states:"Indeterminate (loading unknown) · Determinate (0–100%) · Complete · Error · Linear · Circular/ring variant",
+    wcag:"role='progressbar', aria-valuenow, aria-valuemin='0', aria-valuemax='100', aria-label or aria-labelledby. Percentage text label always visible — not colour alone." },
+  { id:"skeleton", name:"Skeleton Loader", cat:"feedback",
+    states:"Single-line · Multi-line · Card skeleton · Table row skeleton",
+    wcag:"aria-busy='true' on the loading container. aria-label='Loading…' on skeleton wrapper. Remove aria-busy once real content replaces skeleton." },
+  { id:"empty-state", name:"Empty State", cat:"feedback",
+    states:"No data · No search results · No notifications · Access denied · Error with retry",
+    wcag:"Heading + descriptive paragraph + CTA. Decorative illustration: aria-hidden='true'. CTA must be a proper <button> or <a> — never a div." },
+  { id:"star-rating", name:"Score Display (Star Rating)", cat:"feedback",
+    states:"0–5 stars (full) · Static (display-only) · Interactive (selectable, override mode)",
+    wcag:"Static: role='img' aria-label='4 out of 5 stars'. Interactive: role='radiogroup' with individual role='radio' per star. Keyboard: Arrow keys to adjust rating." },
+  /* LAYOUT */
+  { id:"card", name:"Card / Surface", cat:"layout",
+    states:"Default · Hover (interactive variant) · Selected/active · Disabled · With header · With footer · With media area",
+    wcag:"Interactive cards: entire card is a <button> or <a> with accessible name derived from heading inside. Avoid div-only click handlers." },
+  { id:"modal", name:"Modal / Dialog", cat:"layout",
+    states:"Opening (animate in) · Open · Close (animate out) · Small / Medium / Large / Full-screen sizes",
+    wcag:"role='dialog', aria-modal='true', aria-labelledby → dialog title. Focus trap while open (SC 2.1.2). Escape key closes. On close, focus returns to the trigger element." },
+  { id:"drawer", name:"Drawer / Side Panel", cat:"layout",
+    states:"Closed · Opening (slide in) · Open from right · Open from left · With overlay backdrop",
+    wcag:"Same rules as modal: role='dialog', focus trap, aria-labelledby, Escape closes. Screen reader must not interact with background content while drawer is open." },
+  { id:"tooltip", name:"Tooltip", cat:"layout",
+    states:"Hidden (default) · Visible on hover · Visible on focus",
+    wcag:"role='tooltip' + unique id. Trigger element: aria-describedby='[tooltip-id]'. Dismissible with Escape key. Must not obscure interactive content (SC 1.4.13). Never use for essential information shown only on hover." },
+  { id:"popover", name:"Popover / Contextual Menu", cat:"layout",
+    states:"Closed · Open · Item hover · Item disabled · Loading content",
+    wcag:"If list of actions: role='menu' with role='menuitem' children. If contains a form: role='dialog'. aria-expanded on trigger. Arrow keys navigate. Escape closes." },
+  { id:"accordion", name:"Accordion", cat:"layout",
+    states:"All collapsed · One open · Multiple open (if allowed) · Focus per header",
+    wcag:"Each header: role='button' inside appropriate role='heading' level. aria-expanded. aria-controls → content panel id. Enter/Space toggle. Content panel: role='region' aria-labelledby → header." },
+  { id:"split-panel", name:"Split / Resizable Panel", cat:"layout",
+    states:"Default proportions · Being dragged · Min limit reached · Max limit reached",
+    wcag:"Divider: role='separator' + aria-orientation='vertical|horizontal'. Arrow keys adjust split ratio (SC 2.1.1). Announce current proportion to screen reader." },
+  { id:"diff-panel", name:"Diff / Side-by-Side Comparison", cat:"layout",
+    states:"Unchanged text · Changed (highlighted) · Added (green) · Removed (red)",
+    wcag:"Changes MUST NOT rely on colour alone — pair red/green with explicit +/− icons or 'Added:' / 'Removed:' labels (SC 1.4.1). Screen reader: changes described via aria-label or visually-hidden text." },
+  /* DATA DISPLAY */
+  { id:"data-table", name:"Data Table", cat:"data",
+    states:"Default · Row hover · Row selected (checkbox) · Sortable column (asc/desc/none) · Loading · Empty · With pagination",
+    wcag:"<table> with <th scope='col'>. Sortable: aria-sort='ascending|descending|none'. Row selection: aria-selected on <tr> + indeterminate 'select all' checkbox. Caption or aria-label describes table purpose." },
+  { id:"status-badge", name:"Status Badge / Pill", cat:"data",
+    states:"Draft · Active · Submitted · In review · Certified · Paused · Archived · Error",
+    wcag:"Status text always visible inside badge — not icon-only (SC 1.4.1). If icon accompanies text, icon is aria-hidden. If icon-only badge used anywhere, it must have aria-label." },
+  { id:"avatar", name:"Avatar / Initials", cat:"data",
+    states:"With photo · Initials fallback · Online indicator · Offline indicator · Size: sm/md/lg",
+    wcag:"If avatar identifies a person in context (e.g. 'assigned to'), provide alt text or aria-label with the person's name. Decorative avatars: aria-hidden='true'." },
+  { id:"notification-item", name:"Notification Item", cat:"data",
+    states:"Unread (bold + dot) · Read · With action link · Dismissible",
+    wcag:"Unread: bold text + coloured dot with aria-label='unread notification'. Dot not colour-only. Timestamp: <time datetime='ISO-8601-value'>. Dismiss: aria-label='Dismiss notification about [topic]'." },
+  { id:"evidence-card", name:"Evidence File Card / List Item", cat:"data",
+    states:"Default · Selected (checkbox) · Preview loading · Uploading (progress) · Upload error · Archived",
+    wcag:"File type icon: aria-label='PDF file' etc. Action buttons (rename, delete, download): aria-label must include filename for context (e.g. 'Delete energy_audit_2024.pdf'). Avoid generic 'Delete' alone." },
+  { id:"score-summary", name:"Score Summary / Pillar Breakdown", cat:"data",
+    states:"Per-pillar progress rings · Star band indicator · Improvement statement count",
+    wcag:"Chart/ring components: role='img' + aria-label with the key figure (e.g. '72% — Sourcing pillar'). Provide a visually-hidden data table as a text alternative for screen readers." },
+  { id:"stat-card", name:"Stat / Metric Card", cat:"data",
+    states:"Number with label · With trend arrow (up/down) · With comparison delta · Loading skeleton",
+    wcag:"Trend icons: aria-label='increased by 12%' (not colour-only). Trend colour must not be the sole indicator — pair with ↑/↓ icon and text. Number formatted for locale." },
+  { id:"timeline", name:"Timeline / Version History", cat:"data",
+    states:"Default (list) · Item expanded (detail) · Empty state",
+    wcag:"Implemented as <ol> or role='list'. Each event has a visible date as <time datetime='YYYY-MM-DD'>. Expand/collapse: aria-expanded on trigger." },
+  /* OVERLAYS */
+  { id:"confirm-dialog", name:"Confirmation Dialog", cat:"overlay",
+    states:"Default · Submitting/loading (after confirm) · Error (action failed)",
+    wcag:"role='alertdialog', aria-labelledby → title, aria-describedby → description. Destructive action button must NOT be auto-focused — prevents accidental confirmation. Cancel is default focus." },
+  { id:"loading-overlay", name:"Full-Screen Loading Overlay", cat:"overlay",
+    states:"Active (with message) · Complete (fades out)",
+    wcag:"aria-busy='true' on <main> content while active. Overlay: role='status' with loading message. Keyboard focus trapped or navigation disabled while active." },
+  { id:"evidence-preview", name:"Evidence Preview Overlay", cat:"overlay",
+    states:"Loading · PDF rendered · Image rendered · Unsupported file type · Error state",
+    wcag:"role='dialog' + aria-label='Preview: [filename]'. Close button always keyboard-accessible. PDF embed: provide a visible Download button as fallback — PDF content may not be readable inside the embed element by all screen readers." },
+  { id:"assign-modal", name:"Assign Question Modal", cat:"overlay",
+    states:"Default · Colleague selected · Due date set · Context note added · Submitting · Success",
+    wcag:"role='dialog'. First focusable element (combobox for colleague search) receives focus on open. All form fields fully labelled. Success state: announce to screen reader, close and return focus to trigger." },
+  { id:"score-override", name:"Score Override Modal", cat:"overlay",
+    states:"Default · Reason entered · Submitting · Saved (with audit log confirmation)",
+    wcag:"role='dialog'. Reason textarea: aria-required='true'. Validation fires on submit attempt. Override confirmed state: announce new score via aria-live." },
+];
+
+const USAGE_MAP = {
+  "btn-primary": [
+    { j: "J1", pages: "Sign-up, Org setup, Billing confirm, Send invites, Activate assessment" },
+    { j: "J2", pages: "Submit for preliminary review, Confirm submission" },
+    { j: "J3", pages: "Confirm upload, Attach to question" },
+    { j: "J4", pages: "Publish assessment version, Confirm bulk import" },
+    { j: "J5", pages: "Generate preliminary report, Award certification" },
+    { j: "J6", pages: "Create action, Download final report" },
+    { j: "J7", pages: "Trigger data export" },
+  ],
+  "btn-secondary": [
+    { j: "J1", pages: "Back (multi-step onboarding), Cancel invite" },
+    { j: "J2", pages: "View previous submission answer, Cancel delegation" },
+    { j: "J3", pages: "Cancel upload, Move to folder (secondary action)" },
+    { j: "J4", pages: "Save question draft, Cancel edit, Discard changes" },
+    { j: "J5", pages: "Flag as paused, Dismiss evaluator note" },
+    { j: "J6", pages: "Cancel action creation" },
+    { j: "J7", pages: "Cancel export configuration" },
+  ],
+  "btn-destructive": [
+    { j: "J1", pages: "Remove pending invite, Delete site" },
+    { j: "J3", pages: "Archive file, Delete file (requires confirmation dialog)" },
+    { j: "J4", pages: "Delete question, Delete assessment version" },
+    { j: "J5", pages: "Remove improvement statement from submission" },
+    { j: "J6", pages: "Delete action" },
+    { j: "Users & Permissions", pages: "Remove user from organisation, Revoke invite" },
+  ],
+  "btn-icon": [
+    { j: "Global", pages: "Sidebar collapse toggle, Notifications bell, Close modal (×)" },
+    { j: "J2", pages: "Assign question (person+ icon), Evidence quick-actions in question panel" },
+    { j: "J3", pages: "Preview file, Download file, More-options per file card (…)" },
+    { j: "J4", pages: "Drag-handle (reorder), Delete row in answers list, Copy question" },
+    { j: "J5", pages: "Score override trigger, Pin evaluator note" },
+    { j: "J6", pages: "Edit action, Delete action, Move action column" },
+  ],
+  "text-input": [
+    { j: "J1", pages: "Email, password, org name, site name, billing fields, invite email address" },
+    { j: "J2", pages: "Inline comment per question, Global search bar" },
+    { j: "J3", pages: "Rename file, Folder name, Web link evidence URL field" },
+    { j: "J4", pages: "Question text, answer option text, translation fields per language" },
+    { j: "J5", pages: "Evaluator internal note, statement bank text search" },
+    { j: "J6", pages: "Action title" },
+    { j: "Settings", pages: "All personal profile fields, org name, address fields" },
+  ],
+  "textarea": [
+    { j: "J2", pages: "Long-answer question type in assessment, note to delegate when assigning" },
+    { j: "J4", pages: "Question help text, tooltip guidance text" },
+    { j: "J5", pages: "Improvement statement editor, evaluator internal notes per question" },
+    { j: "J6", pages: "Action detail notes, comment on action" },
+  ],
+  "radio-group": [
+    { j: "J2", pages: "Single-select question type (most common question type in assessment)" },
+    { j: "J4", pages: "Question type selector, scoring logic mode selection" },
+    { j: "J5", pages: "Manual score selection where auto-score not available" },
+  ],
+  "checkbox": [
+    { j: "J2", pages: "Multi-select question type in assessment" },
+    { j: "J3", pages: "Bulk-select files for move/archive/delete" },
+    { j: "J4", pages: "AND/OR logic condition checkboxes" },
+    { j: "J5", pages: "Multi-assign improvement statements to questions" },
+    { j: "J7", pages: "Export field selector" },
+    { j: "Users & Permissions", pages: "Per-site access matrix checkboxes" },
+  ],
+  "toggle": [
+    { j: "J2", pages: "'View previous submission answer' toggle per question" },
+    { j: "J4", pages: "Question active/inactive toggle, published/draft toggle per version" },
+    { j: "J5", pages: "Pin evaluator note toggle" },
+    { j: "Settings", pages: "Notification preferences — per event type (email / in-app)" },
+  ],
+  "select": [
+    { j: "J1", pages: "Country selector, business type selector, role assignment" },
+    { j: "J4", pages: "Question type selector, pillar assignment, impact area assignment" },
+    { j: "J6", pages: "Action type (policy / behaviour), team assignment" },
+    { j: "J7", pages: "Filter by stage/status, date range selection" },
+  ],
+  "combobox": [
+    { j: "J2", pages: "Assign-to-colleague (people search with typeahead)" },
+    { j: "J3", pages: "Attach evidence to question (search questions by keyword)" },
+    { j: "J4", pages: "Logic rule: select which question this answer depends on" },
+    { j: "J5", pages: "Assign improvement statement (search statement bank)" },
+    { j: "Users & Permissions", pages: "Role selector per user, per-site permission selector" },
+  ],
+  "datepicker": [
+    { j: "J2", pages: "Assign task — due date for colleague" },
+    { j: "J4", pages: "Assessment publish date" },
+    { j: "J6", pages: "Action deadline" },
+    { j: "J7", pages: "Export date range filter (from / to)" },
+  ],
+  "file-upload": [
+    { j: "J3", pages: "Evidence library — upload new files (primary upload surface)" },
+    { j: "J4", pages: "Bulk import — Excel file upload" },
+    { j: "Settings", pages: "Organisation logo upload, personal profile photo upload" },
+  ],
+  "slider": [
+    { j: "J2", pages: "Scale/rating question type in assessment (e.g. 0–10 satisfaction scale)" },
+    { j: "J4", pages: "5-star scoring threshold configuration (band boundary sliders)" },
+  ],
+  "rich-text": [
+    { j: "J4", pages: "Question text with formatting, answer help text, tooltip guidance" },
+    { j: "J5", pages: "Improvement statement editor, preliminary/final report content blocks" },
+  ],
+  "search": [
+    { j: "J2", pages: "Global assessment search (questions, answers, evidence)" },
+    { j: "J3", pages: "Evidence library search" },
+    { j: "J4", pages: "Assessment template search, question search in editor" },
+    { j: "J5", pages: "Submission list search, statement bank search" },
+    { j: "J7", pages: "Organisation list search" },
+  ],
+  "lang-select": [
+    { j: "Global", pages: "Sidebar footer — persistent language preference. Applies to UI and assessment content (EN/JP/ES/ZH)" },
+  ],
+  "sidebar-nav": [
+    { j: "Global", pages: "All authenticated pages — client sidebar and SRA staff sidebar. Role-differentiated content: clients see Assessments, Evidence, Actions, Reports; SRA see Submissions, Authoring, Organisations, Analytics" },
+  ],
+  "breadcrumb": [
+    { j: "J2", pages: "Pillar → Section → Question" },
+    { j: "J3", pages: "Evidence Library → Folder → File" },
+    { j: "J4", pages: "Assessment version → Pillar → Question editor" },
+    { j: "J5", pages: "Evaluation queue → Submission → Question" },
+  ],
+  "tabs": [
+    { j: "J2", pages: "Assessment overview: Sourcing / Society / Environment pillar tabs" },
+    { j: "J5", pages: "Submission review: Questions / Changes since preliminary / Statements" },
+    { j: "J6", pages: "Preliminary report: Overview / Per-question breakdown" },
+    { j: "J7", pages: "Dashboard: Overview / Analytics / Export" },
+    { j: "Settings", pages: "Profile / Organisation / Users & Permissions" },
+  ],
+  "pagination": [
+    { j: "J7", pages: "Organisation list (potentially hundreds of orgs)" },
+    { j: "J5", pages: "Evaluator dashboard submission list (high-volume periods)" },
+    { j: "J3", pages: "Evidence library list view for large libraries" },
+  ],
+  "step-progress": [
+    { j: "J1", pages: "Onboarding steps: Sign up → Organisation → Sites → Billing → Team → Activate" },
+    { j: "J4", pages: "Bulk import wizard: Upload → Validate → Confirm" },
+  ],
+  "assessment-nav": [
+    { j: "J2", pages: "Left rail during assessment completion — all sections with completion status" },
+    { j: "J5", pages: "Left rail during submission evaluation — questions with score status" },
+  ],
+  "toast": [
+    { j: "J2", pages: "Auto-save confirmation, question assigned successfully" },
+    { j: "J3", pages: "Upload success / error, file moved successfully" },
+    { j: "J4", pages: "Assessment published, import complete" },
+    { j: "J5", pages: "Score saved, statement assigned" },
+    { j: "J6", pages: "Action created, action status updated" },
+    { j: "Global", pages: "Session expiry warning (polite, with countdown)" },
+  ],
+  "inline-error": [
+    { j: "J1", pages: "All sign-up and onboarding form fields" },
+    { j: "J2", pages: "Required evidence warning on submit attempt" },
+    { j: "J3", pages: "File type invalid, file size exceeded, illegal characters in filename" },
+    { j: "J4", pages: "Question logic validation (conflicting conditions)" },
+    { j: "J5", pages: "Score required before generating report" },
+    { j: "J6", pages: "Action missing required field (title, owner, deadline)" },
+    { j: "Settings", pages: "All settings form fields" },
+  ],
+  "auto-save": [
+    { j: "J2", pages: "Persistent in question answer page header — saves on every field change" },
+    { j: "J4", pages: "Question editor — saves changes to assessment structure" },
+  ],
+  "progress-bar": [
+    { j: "J1", pages: "Billing payment processing (indeterminate)" },
+    { j: "J2", pages: "Overall assessment completion % in page header" },
+    { j: "J3", pages: "Per-file upload progress in upload modal" },
+    { j: "J4", pages: "Bulk import processing progress" },
+  ],
+  "skeleton": [
+    { j: "J2", pages: "Question list loading, evidence panel loading" },
+    { j: "J3", pages: "Evidence library grid loading on initial load" },
+    { j: "J5", pages: "Submission list loading, statement bank loading" },
+    { j: "J7", pages: "Dashboard stats loading, organisation list loading" },
+  ],
+  "empty-state": [
+    { j: "J2", pages: "No questions in filter view, no evidence attached to question" },
+    { j: "J3", pages: "Empty folder, no search results in library" },
+    { j: "J5", pages: "No submissions assigned to evaluator" },
+    { j: "J6", pages: "No actions created yet" },
+    { j: "J7", pages: "No organisations (new platform), no export history" },
+  ],
+  "star-rating": [
+    { j: "J5", pages: "Star rating on final certification confirm screen (interactive — evaluator sets)" },
+    { j: "J6", pages: "Star rating on final report view (static display)" },
+    { j: "J7", pages: "Star rating in organisation list and dashboard (static display)" },
+  ],
+  "card": [
+    { j: "J2", pages: "Pillar summary cards on assessment overview dashboard" },
+    { j: "J6", pages: "Action cards on actions board" },
+    { j: "J7", pages: "Stat/metric cards on dashboards" },
+    { j: "J1", pages: "Site cards on sites setup page" },
+  ],
+  "modal": [
+    { j: "J2", pages: "Assign question modal" },
+    { j: "J3", pages: "Upload modal, folder management, attach evidence to question" },
+    { j: "J4", pages: "Publish confirmation, delete question confirmation" },
+    { j: "J5", pages: "Score override, generate report confirm" },
+    { j: "J6", pages: "Create action" },
+  ],
+  "drawer": [
+    { j: "J2", pages: "Evidence detail panel (right drawer, opens from question page)" },
+    { j: "J3", pages: "File detail / preview panel" },
+    { j: "J5", pages: "Improvement statement bank browse panel" },
+    { j: "J7", pages: "Organisation detail quick-view panel (from list)" },
+  ],
+  "tooltip": [
+    { j: "J2", pages: "Score info per question (what points are available), certification-skip explanation" },
+    { j: "J4", pages: "Scoring logic help icons, Red lines explanation" },
+    { j: "J5", pages: "Score override audit indicator, override reason preview" },
+    { j: "Global", pages: "Icon-only buttons throughout platform" },
+  ],
+  "popover": [
+    { j: "J3", pages: "File card '…' more-options menu (rename, move, archive, delete)" },
+    { j: "J4", pages: "Question '…' context menu (duplicate, delete, move to section)" },
+    { j: "J2", pages: "Assessment question '…' options (assign, view history, skip)" },
+  ],
+  "accordion": [
+    { j: "J2", pages: "Section-level grouping on assessment overview (collapse/expand sections)" },
+    { j: "J6", pages: "Pillar breakdown in preliminary report view" },
+    { j: "J7", pages: "Org detail page — collapsible submission history, users, billing" },
+  ],
+  "split-panel": [
+    { j: "J5", pages: "Submission review — answer panel (left) + evidence preview (right)" },
+    { j: "J5", pages: "Diff view — previous answer (left) + updated answer (right)" },
+  ],
+  "diff-panel": [
+    { j: "J5", pages: "Changes since preliminary — shows what client changed after initial submission" },
+  ],
+  "data-table": [
+    { j: "J5", pages: "Evaluator dashboard submissions list" },
+    { j: "J7", pages: "Organisation list, export field selector" },
+    { j: "J4", pages: "Assessment templates list, translations status grid" },
+    { j: "Users & Permissions", pages: "User list with role and permissions columns" },
+  ],
+  "status-badge": [
+    { j: "J2", pages: "Per-question status (answered, unanswered, missing evidence, assigned, skipped)" },
+    { j: "J5", pages: "Submission stage badge (preliminary, in review, certified, paused)" },
+    { j: "J4", pages: "Assessment version status (draft, published, archived)" },
+    { j: "J7", pages: "Organisation list status column" },
+  ],
+  "avatar": [
+    { j: "J2", pages: "Assigned-to display per question, team member in invite list" },
+    { j: "J5", pages: "Evaluator assigned to submission" },
+    { j: "J6", pages: "Action owner display" },
+    { j: "Settings", pages: "Profile photo in settings header, users list" },
+  ],
+  "notification-item": [
+    { j: "Global sidebar", pages: "Notification centre — all event types (assignment, report ready, cert awarded)" },
+    { j: "J2", pages: "Bell icon in nav shows unread count badge" },
+  ],
+  "evidence-card": [
+    { j: "J3", pages: "Evidence library — primary file display component (grid + list views)" },
+    { j: "J2", pages: "Evidence panel on question page — attached evidence items" },
+    { j: "J5", pages: "Evidence list when evaluator reviews a question" },
+  ],
+  "score-summary": [
+    { j: "J2", pages: "Assessment overview — pillar breakdown rings" },
+    { j: "J6", pages: "Preliminary and final report views" },
+    { j: "J7", pages: "Dashboard summary, organisation detail" },
+  ],
+  "stat-card": [
+    { j: "J7", pages: "SRA admin dashboard (847 orgs, 4.2hrs avg, 88% completion rate)" },
+    { j: "J7", pages: "Client dashboard (cert expiry countdown, days until next due)" },
+  ],
+  "timeline": [
+    { j: "J4", pages: "Version history page — all assessment versions chronologically" },
+    { j: "J7", pages: "Organisation detail — submission history" },
+  ],
+  "confirm-dialog": [
+    { j: "J3", pages: "Delete file, archive file" },
+    { j: "J4", pages: "Delete question, delete assessment version" },
+    { j: "J5", pages: "Award certification (irreversible action)" },
+    { j: "Users & Permissions", pages: "Remove user, revoke pending invite" },
+  ],
+  "loading-overlay": [
+    { j: "J4", pages: "Bulk import processing, assessment publish" },
+    { j: "J5", pages: "Generating PDF report (can take several seconds)" },
+    { j: "J1", pages: "Payment processing via GoCardless" },
+  ],
+  "evidence-preview": [
+    { j: "J3", pages: "File detail pane — in-browser PDF and image preview (no forced download)" },
+    { j: "J5", pages: "Evaluator reviewing evidence inline while scoring a question" },
+  ],
+  "assign-modal": [
+    { j: "J2", pages: "Assign question to colleague from question detail page" },
+  ],
+  "score-override": [
+    { j: "J5", pages: "Override auto-calculated score during submission evaluation" },
+  ],
+};
+
+/* ─── COMPONENTS ─────────────────────────────────────────────────── */
+
+function Header() {
+  return (
+    <header className="site-header">
+      <a className="brand" href="#" aria-label="FMG Platform UI Spec home">
+        <div className="brand-dot" aria-hidden="true">FMG</div>
+        <span>Platform UI Kit Specification</span>
+      </a>
+      <span className="header-meta">SRA Food Made Good · April 2026 · v1</span>
+    </header>
+  );
+}
+
+function Sidebar({ active, setActive }) {
+  const sections = [
+    { label: "Overview", items: [{ id: "overview", name: "About this spec" }] },
+    {
+      label: "Pages by journey",
+      items: JOURNEYS.map(j => ({ id: j.id, name: `${j.num} ${j.label}`, badge: j.pages.length }))
+    },
+    {
+      label: "UI Kit",
+      items: [
+        { id: "kit-all", name: "All components", badge: COMPONENTS.length },
+        { id: "kit-inputs", name: "Inputs", badge: COMPONENTS.filter(c=>c.cat==="inputs").length },
+        { id: "kit-navigation", name: "Navigation", badge: COMPONENTS.filter(c=>c.cat==="navigation").length },
+        { id: "kit-feedback", name: "Feedback", badge: COMPONENTS.filter(c=>c.cat==="feedback").length },
+        { id: "kit-layout", name: "Layout", badge: COMPONENTS.filter(c=>c.cat==="layout").length },
+        { id: "kit-data", name: "Data display", badge: COMPONENTS.filter(c=>c.cat==="data").length },
+        { id: "kit-overlay", name: "Overlays", badge: COMPONENTS.filter(c=>c.cat==="overlay").length },
+      ]
+    },
+    { label: "Usage", items: [{ id: "usage", name: "Component usage map" }] },
+  ];
+
+  return (
+    <nav className="sidebar" aria-label="Site navigation">
+      {sections.map(sec => (
+        <div key={sec.label}>
+          <div className="sidebar-section-label">{sec.label}</div>
+          {sec.items.map(item => (
+            <button
+              key={item.id}
+              className={`sidebar-link${active === item.id ? " active" : ""}`}
+              onClick={() => setActive(item.id)}
+              aria-current={active === item.id ? "page" : undefined}
+            >
+              {item.name}
+              {item.badge && <span className="badge" aria-label={`${item.badge} items`}>{item.badge}</span>}
+            </button>
+          ))}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+function ChipType({ type }) {
+  const map = { client: ["chip-client", "Client"], staff: ["chip-staff", "SRA Staff"], shared: ["chip-shared", "Shared"] };
+  const [cls, label] = map[type] || ["chip-shared", type];
+  return <span className={`chip ${cls}`}>{label}</span>;
+}
+
+function OverviewPage() {
+  const totalPages = JOURNEYS.reduce((a, j) => a + j.pages.length, 0);
+  return (
+    <div>
+      <div className="page-header">
+        <h1>FMG Platform — UI Kit Specification</h1>
+        <p>A complete reference for the Food Made Good Standard platform rebuild. Documents all pages per user journey and every UI component required in the design system, with states, variants, and WCAG 2.2 AA compliance notes.</p>
+      </div>
+      <div className="stat-row">
+        <div className="stat-card"><div className="num">{JOURNEYS.length}</div><div className="lbl">User journeys</div></div>
+        <div className="stat-card"><div className="num">{totalPages}</div><div className="lbl">Pages mapped</div></div>
+        <div className="stat-card"><div className="num">{COMPONENTS.length}</div><div className="lbl">UI kit components</div></div>
+        <div className="stat-card"><div className="num">4</div><div className="lbl">Languages supported</div></div>
+      </div>
+      <div className="card">
+        <div className="card-header"><h2>How to use this document</h2></div>
+        <div className="card-body" style={{fontSize:"0.875rem", color:"var(--text2)", lineHeight:1.7}}>
+          <p style={{marginBottom:"0.75rem"}}><strong style={{color:"var(--text)"}}>Pages by journey</strong> — Use the sidebar to browse each of the 8 user journeys. Each journey lists every screen that needs to be designed and built. Pages identified here go beyond the wireframes shared with the client — missing pages (MFA, read-only views, diff view, error states, etc.) are included.</p>
+          <p style={{marginBottom:"0.75rem"}}><strong style={{color:"var(--text)"}}>UI kit components</strong> — The full component inventory. For each component: the states and variants the design must cover, and specific WCAG 2.2 AA implementation requirements. These are minimum requirements — the design system may extend them.</p>
+          <p><strong style={{color:"var(--text)"}}>Component usage map</strong> — Select any component to see exactly which journeys and pages it appears in. Use this to prioritise the build order and ensure nothing is missed during design reviews.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JourneyPage({ journey }) {
+  return (
+    <div>
+      <div className="page-header">
+        <div style={{display:"flex", alignItems:"center", gap:"10px", marginBottom:"0.5rem"}}>
+          <ChipType type={journey.type} />
+          <span style={{fontSize:"0.8rem", color:"var(--text3)"}}>Journey {journey.num}</span>
+        </div>
+        <h1>{journey.label}</h1>
+        <p>{journey.pages.length} pages · Including screens not covered in the client wireframes</p>
+      </div>
+      <div className="card">
+        <div className="card-header">
+          <h2>Pages in this journey</h2>
+          <span style={{fontSize:"0.8rem", color:"var(--text3)"}}>{journey.pages.length} total</span>
+        </div>
+        <ul className="page-list" style={{padding: "0 1.25rem"}}>
+          {journey.pages.map((p, i) => (
+            <li key={i} className="page-item">
+              <div className="page-item-name">{p.name}</div>
+              <div className="page-item-note">{p.note}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+const CAT_LABELS = { inputs:"Inputs", navigation:"Navigation", feedback:"Feedback", layout:"Layout", data:"Data display", overlay:"Overlays" };
+const CATS = Object.keys(CAT_LABELS);
+
+function KitPage({ filterCat }) {
+  const [search, setSearch] = useState("");
+  const filtered = useMemo(() => {
+    let comps = filterCat === "all" ? COMPONENTS : COMPONENTS.filter(c => c.cat === filterCat);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      comps = comps.filter(c => c.name.toLowerCase().includes(q) || c.states.toLowerCase().includes(q) || c.wcag.toLowerCase().includes(q));
+    }
+    return comps;
+  }, [filterCat, search]);
+
+  const title = filterCat === "all" ? "All Components" : CAT_LABELS[filterCat];
+
+  return (
+    <div>
+      <div className="page-header">
+        <h1>{title}</h1>
+        <p>{filtered.length} component{filtered.length !== 1 ? "s" : ""} · States, variants, and WCAG 2.2 AA requirements</p>
+      </div>
+      <div className="search-wrap">
+        <span className="search-icon" aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          placeholder={`Search ${title.toLowerCase()}…`}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          aria-label={`Search ${title.toLowerCase()}`}
+        />
+      </div>
+      {filtered.length === 0 ? (
+        <div className="empty-state" role="status">No components match "{search}"</div>
+      ) : (
+        <div className="comp-table-wrap">
+          <table className="comp-table" aria-label={`${title} component list`}>
+            <thead>
+              <tr>
+                <th style={{width:"200px"}}>Component</th>
+                <th>States &amp; variants</th>
+                <th>WCAG 2.2 AA requirements</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(c => (
+                <tr key={c.id}>
+                  <td>
+                    <div className="comp-name">{c.name}</div>
+                    <div className="cat-tag">{CAT_LABELS[c.cat]}</div>
+                  </td>
+                  <td style={{fontSize:"0.82rem"}}>{c.states}</td>
+                  <td>
+                    <div className="wcag-block">
+                      <span className="wcag-label" aria-hidden="true">WCAG AA</span>
+                      {c.wcag}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UsagePage() {
+  const [selected, setSelected] = useState(COMPONENTS[0].id);
+  const usageItems = USAGE_MAP[selected] || [];
+  const comp = COMPONENTS.find(c => c.id === selected);
+
+  return (
+    <div>
+      <div className="page-header">
+        <h1>Component Usage Map</h1>
+        <p>Select a component to see every journey and page where it is used.</p>
+      </div>
+      <div className="usage-select-row">
+        <label htmlFor="comp-select">Component:</label>
+        <select id="comp-select" value={selected} onChange={e => setSelected(e.target.value)} aria-label="Select component to view usage">
+          {CATS.map(cat => (
+            <optgroup key={cat} label={CAT_LABELS[cat]}>
+              {COMPONENTS.filter(c => c.cat === cat).map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
+      {comp && (
+        <div className="card" style={{marginBottom:"1rem"}}>
+          <div className="card-header">
+            <h2>{comp.name}</h2>
+            <span className="cat-tag">{CAT_LABELS[comp.cat]}</span>
+          </div>
+          <div className="card-body" style={{fontSize:"0.82rem", color:"var(--text2)"}}>
+            <strong style={{color:"var(--text)"}}>States:</strong> {comp.states}
+          </div>
+        </div>
+      )}
+      {usageItems.length === 0 ? (
+        <div className="empty-state" role="status">No usage data for this component.</div>
+      ) : (
+        <div className="usage-list" role="list" aria-label="Component usage by journey">
+          {usageItems.map((item, i) => (
+            <div key={i} className="usage-item" role="listitem">
+              <div className="usage-journey-label">{item.j}</div>
+              <div>{item.pages}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AllJourneysPage() {
+  return (
+    <div>
+      <div className="page-header">
+        <h1>All User Journeys</h1>
+        <p>All 8 journeys spanning 3 user types. Select a journey from the sidebar for the full page inventory.</p>
+      </div>
+      <div className="journey-grid">
+        {JOURNEYS.map(j => (
+          <div key={j.id} className="journey-card">
+            <div className="journey-card-header">
+              <div>
+                <div className="journey-num">{j.num}</div>
+                <div className="journey-title">{j.label}</div>
+              </div>
+              <ChipType type={j.type} />
+            </div>
+            <div style={{fontSize:"0.8rem", color:"var(--text3)"}}>{j.pages.length} pages</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [active, setActive] = useState("overview");
+
+  const renderMain = useCallback(() => {
+    if (active === "overview") return <OverviewPage />;
+    if (active === "kit-all") return <KitPage filterCat="all" />;
+    if (active === "usage") return <UsagePage />;
+    if (active.startsWith("kit-")) return <KitPage filterCat={active.replace("kit-","")} />;
+    const journey = JOURNEYS.find(j => j.id === active);
+    if (journey) return <JourneyPage journey={journey} />;
+    return <OverviewPage />;
+  }, [active]);
+
+  return (
+    <div id="root" style={{display:"flex", flexDirection:"column", minHeight:"100vh"}}>
+      <Header />
+      <div className="app-body">
+        <Sidebar active={active} setActive={setActive} />
+        <main className="main-content" id="main-content" tabIndex="-1">
+          {renderMain()}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ─── PASSWORD GATE ──────────────────────────────────────────────── */
+
+const CORRECT = "Sp1nners";
+const SESSION_KEY = "fmg_spec_auth";
+
+function PasswordGate({ onUnlock }) {
+  const [value, setValue] = useState("");
+  const [show, setShow] = useState(false);
+  const [error, setError] = useState("");
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => { if (inputRef.current) inputRef.current.focus(); }, []);
+
+  function attempt(e) {
+    e.preventDefault();
+    if (value === CORRECT) {
+      try { sessionStorage.setItem(SESSION_KEY, "1"); } catch(_) {}
+      onUnlock();
+    } else {
+      setError("Incorrect password. Please try again.");
+      setValue("");
+      setTimeout(() => { if (inputRef.current) inputRef.current.focus(); }, 10);
+    }
+  }
+
+  return (
+    <div className="gate-wrap" role="main">
+      <div className="gate-card">
+        <div className="gate-logo" aria-hidden="true">FMG</div>
+        <h1>Platform UI Specification</h1>
+        <p>This document is password protected.<br />Enter the password to continue.</p>
+        <form onSubmit={attempt} noValidate>
+          <div className="gate-field">
+            <input
+              ref={inputRef}
+              type={show ? "text" : "password"}
+              value={value}
+              onChange={e => { setValue(e.target.value); setError(""); }}
+              placeholder="Password"
+              aria-label="Password"
+              aria-describedby="gate-err"
+              aria-invalid={error ? "true" : "false"}
+              className={error ? "error" : ""}
+              autoComplete="current-password"
+              spellCheck={false}
+            />
+            <button
+              type="button"
+              className="gate-toggle"
+              onClick={() => setShow(s => !s)}
+              aria-label={show ? "Hide password" : "Show password"}
+            >
+              {show ? "\u{1F648}" : "\u{1F441}"}
+            </button>
+          </div>
+          <div id="gate-err" className="gate-error" role="alert" aria-live="assertive">
+            {error}
+          </div>
+          <button type="submit" className="gate-btn">Enter</button>
+        </form>
+        <p className="gate-meta">SRA Food Made Good \u00b7 April 2026</p>
+      </div>
+    </div>
+  );
+}
+
+function Root() {
+  const [authed, setAuthed] = useState(() => {
+    try { return sessionStorage.getItem(SESSION_KEY) === "1"; } catch(_) { return false; }
+  });
+  if (!authed) return <PasswordGate onUnlock={() => setAuthed(true)} />;
+  return <App />;
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Root />);
+</script>
+</body>
+</html>
